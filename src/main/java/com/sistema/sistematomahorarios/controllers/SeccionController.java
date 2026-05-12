@@ -9,6 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/secciones")
+@CrossOrigin(origins = "http://localhost:5173")
 public class SeccionController {
 
     @Autowired
@@ -27,8 +28,10 @@ public class SeccionController {
     }
 
     @GetMapping("/asignatura/{idAsignatura}")
-    public List<Seccion> listarPorAsignatura(@PathVariable Integer idAsignatura) {
-        return seccionService.listarPorAsignatura(idAsignatura);
+    public List<Seccion> obtenerPorAsignatura(
+            @PathVariable Integer idAsignatura
+    ) {
+        return seccionService.obtenerPorAsignatura(idAsignatura);
     }
 
     @GetMapping("/profesor/{idProfesor}")

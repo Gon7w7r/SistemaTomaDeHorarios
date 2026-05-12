@@ -8,7 +8,7 @@ import java.util.List;
 public interface SeccionRepository extends JpaRepository<Seccion, Integer>{
 
     List<Seccion> findByAsignaturaIdAsignatura(Integer idAsignatura);
-
+    
     List<Seccion> findByProfesorIdProfesor(Integer idProfesor);
 
 }

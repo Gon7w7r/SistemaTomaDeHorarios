@@ -22,7 +22,7 @@ public class SeccionService {
         return seccionRepository.findById(id);
     }
 
-    public List<Seccion> listarPorAsignatura(Integer idAsignatura) {
+    public List<Seccion> obtenerPorAsignatura(Integer idAsignatura) {
         return seccionRepository.findByAsignaturaIdAsignatura(idAsignatura);
     }
 
