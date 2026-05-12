@@ -2,14 +2,18 @@ package com.sistema.sistematomahorarios.entities;
 
 import jakarta.persistence.*;
 
-
+import java.util.List;
 @Entity
 @Table(name = "seccion")
 public class Seccion {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idSeccion;
+
+    @OneToMany(mappedBy = "seccion")
+    private List<SeccionHorario> horarios;
 
     private Integer cupos;
 
@@ -105,5 +109,13 @@ public class Seccion {
 
     public void setJornada(Jornada jornada) {
         this.jornada = jornada;
+    }
+
+        public List<SeccionHorario> getHorarios() {
+        return horarios;
+    }
+
+    public void setHorarios(List<SeccionHorario> horarios) {
+        this.horarios = horarios;
     }
 }
