@@ -7,7 +7,7 @@ import jakarta.persistence.*;
 @IdClass(SeccionHorarioId.class)
 
 public class SeccionHorario {
-
+//COMMIT DE PRUEBA
     @Id
     @JsonIgnore
     @ManyToOne
