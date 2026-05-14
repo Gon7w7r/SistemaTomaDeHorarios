@@ -2,7 +2,9 @@ package com.sistema.sistematomahorarios.controllers;
 
 
 
+import com.sistema.sistematomahorarios.dto.InscripcionMultipleRequestDTO;
 import com.sistema.sistematomahorarios.dto.InscripcionRequestDTO;
+import com.sistema.sistematomahorarios.dto.InscripcionResponseDTO;
 import com.sistema.sistematomahorarios.entities.Inscripcion;
 import com.sistema.sistematomahorarios.services.InscripcionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +31,23 @@ public class InscripcionController {
 
 
     @GetMapping("/alumno/{idAlumno}")
-    public List<Inscripcion> obtenerInscripcionesAlumno(
+    public List<InscripcionResponseDTO> obtenerInscripcionesAlumno(
             @PathVariable Integer idAlumno
     ) {
         return inscripcionService.obtenerPorAlumno(idAlumno);
+    }
+
+
+    @PostMapping("/inscribir-multiple")
+    public List<String> inscribirMultiple(
+            @RequestBody InscripcionMultipleRequestDTO request
+    ) {
+
+        return inscripcionService.inscribirMultiple(
+                request.getIdAlumno(),
+                request.getSecciones(),
+                request.getIdPeriodo()
+        );
     }
     
 }

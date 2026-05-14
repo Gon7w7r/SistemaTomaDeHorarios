@@ -10,5 +10,9 @@ public interface InscripcionRepository extends JpaRepository<Inscripcion, Intege
     boolean existsByAlumnoIdAlumnoAndSeccionIdSeccion(Integer idAlumno, Integer idSeccion);
 
     long countBySeccionIdSeccion(Integer idSeccion);
+    boolean existsByAlumnoIdAlumnoAndSeccionAsignaturaIdAsignatura(
+        Integer idAlumno,
+        Integer idAsignatura
+    );
 
 }

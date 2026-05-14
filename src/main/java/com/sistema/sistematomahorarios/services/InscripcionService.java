@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.sistema.sistematomahorarios.dto.InscripcionResponseDTO;
 import com.sistema.sistematomahorarios.entities.Inscripcion;
 import com.sistema.sistematomahorarios.entities.Seccion;
 import com.sistema.sistematomahorarios.entities.SeccionHorario;
@@ -14,6 +15,7 @@ import com.sistema.sistematomahorarios.repositories.PeriodoRepository;
 import com.sistema.sistematomahorarios.repositories.SeccionHorarioRepository;
 import com.sistema.sistematomahorarios.repositories.SeccionRepository;
 
+import java.util.ArrayList;
 import java.util.List;  
 
 @Service
@@ -45,6 +47,15 @@ public class InscripcionService {
         long inscritos = inscripcionRepository.countBySeccionIdSeccion(idSeccion);
 
         Seccion seccion = seccionRepository.findById(idSeccion).orElseThrow();
+        if (
+            inscripcionRepository
+                .existsByAlumnoIdAlumnoAndSeccionAsignaturaIdAsignatura(
+                    idAlumno,
+                    seccion.getAsignatura().getIdAsignatura()
+                )
+        ) {
+            return "El alumno ya está inscrito en esta asignatura";
+        }
 
         if (inscritos >= seccion.getCupos()) {
             return "No hay cupos disponibles";
@@ -95,24 +106,58 @@ public class InscripcionService {
     }
 
 
-    private boolean esMismoDia(SeccionHorario h1, SeccionHorario h2) {
-        return h1.getHorario().getDiaSemana().equals(h2.getHorario().getDiaSemana());
+        private boolean esMismoDia(SeccionHorario h1, SeccionHorario h2) {
+            return h1.getHorario().getDiaSemana().equals(h2.getHorario().getDiaSemana());
+        }
+
+            private boolean hayCruceHoras(SeccionHorario h1, SeccionHorario h2) {
+
+            var inicio1 = h1.getHorario().getHoraInicio();
+            var fin1 = h1.getHorario().getHoraFin();
+
+            var inicio2 = h2.getHorario().getHoraInicio();
+            var fin2 = h2.getHorario().getHoraFin();
+
+            return inicio1.isBefore(fin2) && fin1.isAfter(inicio2);
+        }
+
+    public List<InscripcionResponseDTO> obtenerPorAlumno(Integer idAlumno) {
+
+    List<Inscripcion> inscripciones =
+            inscripcionRepository.findByAlumnoIdAlumno(idAlumno);
+
+        return inscripciones.stream()
+                .map(i -> new InscripcionResponseDTO(
+                        i.getSeccion().getAsignatura().getIdAsignatura(),
+                        i.getSeccion().getAsignatura().getNombre(),
+                        i.getSeccion().getIdSeccion()
+                ))
+                .toList();
     }
 
-        private boolean hayCruceHoras(SeccionHorario h1, SeccionHorario h2) {
+    public List<String> inscribirMultiple(
+            Integer idAlumno,
+            List<Integer> secciones,
+            Integer idPeriodo
+    ) {
 
-        var inicio1 = h1.getHorario().getHoraInicio();
-        var fin1 = h1.getHorario().getHoraFin();
+        List<String> resultados = new ArrayList<>();
 
-        var inicio2 = h2.getHorario().getHoraInicio();
-        var fin2 = h2.getHorario().getHoraFin();
+        for (Integer idSeccion : secciones) {
 
-        return inicio1.isBefore(fin2) && fin1.isAfter(inicio2);
+            String resultado = inscribir(
+                    idAlumno,
+                    idSeccion,
+                    idPeriodo
+            );
+
+            resultados.add(
+                    "Sección " + idSeccion + ": " + resultado
+            );
+        }
+
+        return resultados;
     }
-
-    public List<Inscripcion> obtenerPorAlumno(Integer idAlumno) {
-    return inscripcionRepository.findByAlumnoIdAlumno(idAlumno);
-}
 
 
 }
