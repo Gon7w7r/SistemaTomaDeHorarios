@@ -110,5 +110,9 @@ public class InscripcionService {
         return inicio1.isBefore(fin2) && fin1.isAfter(inicio2);
     }
 
+    public List<Inscripcion> obtenerPorAlumno(Integer idAlumno) {
+    return inscripcionRepository.findByAlumnoIdAlumno(idAlumno);
+}
+
 
 }
