@@ -15,4 +15,11 @@ public interface InscripcionRepository extends JpaRepository<Inscripcion, Intege
         Integer idAsignatura
     );
 
+    void deleteByAlumnoIdAlumnoAndPeriodoIdPeriodo(
+        Integer idAlumno,
+        Integer idPeriodo
+    );
+    
+    
+
 }

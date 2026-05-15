@@ -5,7 +5,6 @@ package com.sistema.sistematomahorarios.controllers;
 import com.sistema.sistematomahorarios.dto.InscripcionMultipleRequestDTO;
 import com.sistema.sistematomahorarios.dto.InscripcionRequestDTO;
 import com.sistema.sistematomahorarios.dto.InscripcionResponseDTO;
-import com.sistema.sistematomahorarios.entities.Inscripcion;
 import com.sistema.sistematomahorarios.services.InscripcionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -44,6 +43,19 @@ public class InscripcionController {
     ) {
 
         return inscripcionService.inscribirMultiple(
+                request.getIdAlumno(),
+                request.getSecciones(),
+                request.getIdPeriodo()
+        );
+    }
+
+
+    @PutMapping("/actualizar-horario")
+    public List<String> actualizarHorario(
+            @RequestBody InscripcionMultipleRequestDTO request
+    ) {
+
+        return inscripcionService.actualizarHorario(
                 request.getIdAlumno(),
                 request.getSecciones(),
                 request.getIdPeriodo()

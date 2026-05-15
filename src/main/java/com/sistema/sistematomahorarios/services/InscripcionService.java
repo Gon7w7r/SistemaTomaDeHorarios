@@ -4,9 +4,11 @@ import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 import com.sistema.sistematomahorarios.dto.InscripcionResponseDTO;
+import com.sistema.sistematomahorarios.entities.Alumno;
 import com.sistema.sistematomahorarios.entities.Inscripcion;
+import com.sistema.sistematomahorarios.entities.Periodo;
 import com.sistema.sistematomahorarios.entities.Seccion;
 import com.sistema.sistematomahorarios.entities.SeccionHorario;
 import com.sistema.sistematomahorarios.repositories.AlumnoRepository;
@@ -144,6 +146,37 @@ public class InscripcionService {
         List<String> resultados = new ArrayList<>();
 
         for (Integer idSeccion : secciones) {
+
+            String resultado = inscribir(
+                    idAlumno,
+                    idSeccion,
+                    idPeriodo
+            );
+
+            resultados.add(
+                    "Sección " + idSeccion + ": " + resultado
+            );
+        }
+
+        return resultados;
+    }
+
+    @Transactional
+    public List<String> actualizarHorario(
+            Integer idAlumno,
+            List<Integer> nuevasSecciones,
+            Integer idPeriodo
+    ) {
+
+        // Eliminar TODO el horario actual del alumno
+        inscripcionRepository.deleteByAlumnoIdAlumnoAndPeriodoIdPeriodo(
+                idAlumno,
+                idPeriodo
+        );
+
+        List<String> resultados = new ArrayList<>();
+
+        for (Integer idSeccion : nuevasSecciones) {
 
             String resultado = inscribir(
                     idAlumno,
