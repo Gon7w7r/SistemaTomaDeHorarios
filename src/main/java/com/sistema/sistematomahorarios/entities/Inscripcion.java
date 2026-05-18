@@ -29,7 +29,7 @@ public class Inscripcion {
     private Periodo periodo;
 
 
-    // Getters and Setters
+     // Getters and Setters
 
     public Integer getIdInscripcion() {
         return idInscripcion;
