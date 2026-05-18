@@ -1,51 +1,64 @@
 package com.sistema.sistematomahorarios.controllers;
 
 import com.sistema.sistematomahorarios.dto.LoginRequest;
-import com.sistema.sistematomahorarios.entities.Usuario;
+import com.sistema.sistematomahorarios.dto.LoginResponse;
+import com.sistema.sistematomahorarios.entities.*;
+import com.sistema.sistematomahorarios.repositories.*;
 import com.sistema.sistematomahorarios.services.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import com.sistema.sistematomahorarios.dto.LoginResponse;
-import com.sistema.sistematomahorarios.entities.Alumno;
-import com.sistema.sistematomahorarios.repositories.AlumnoRepository;
+
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin(origins = "http://localhost:5173")
 public class AuthController {
 
+        @Autowired
+        private AuthService authService;
+        @Autowired
+        private AlumnoRepository alumnoRepository;
+        @Autowired
+        private ProfesorRepository profesorRepository;
+        @Autowired
+        private AdministrativoRepository administrativoRepository;
 
-    @Autowired
-    private AlumnoRepository alumnoRepository;
+        @PostMapping("/login")
+        public ResponseEntity<?> login(@RequestBody LoginRequest request) {
 
-    
-    @Autowired
-    private AuthService authService;
+                Usuario usuario = authService.login(request.getRut(), request.getPassword());
 
-    @PostMapping("/login")
-    
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+                if (usuario == null) {
+                        return ResponseEntity.status(401).body("RUT o contraseña incorrectos");
+                }
 
-        Usuario usuario = authService.login(
-                request.getRut(),
-                request.getPassword()
-        );
+                Integer idEntidad = resolverIdEntidad(usuario);
 
-        if (usuario == null) {
-            return ResponseEntity.status(401)
-                    .body("RUT o contraseña incorrectos");
+                LoginResponse response = new LoginResponse(
+                                idEntidad,
+                                usuario.getRut(),
+                                usuario.getNombre(),
+                                usuario.getTipoUsuario());
+
+                return ResponseEntity.ok(response);
         }
 
-        Alumno alumno = alumnoRepository.findByUsuarioRut(usuario.getRut());
-
-        LoginResponse response = new LoginResponse(
-                alumno.getIdAlumno(),
-                usuario.getRut(),
-                usuario.getNombre(),
-                usuario.getTipoUsuario()
-        );
-
-        return ResponseEntity.ok(response);
-       }
-
+        // ── Resuelve el id según el tipo ───────────────────────────────────────
+        private Integer resolverIdEntidad(Usuario usuario) {
+                return switch (usuario.getTipoUsuario()) {
+                        case "ALUMNO" -> {
+                                Alumno a = alumnoRepository.findByUsuarioRut(usuario.getRut());
+                                yield a != null ? a.getIdAlumno() : null;
+                        }
+                        case "PROFESOR" -> {
+                                Profesor p = profesorRepository.findByUsuarioRut(usuario.getRut());
+                                yield p != null ? p.getIdProfesor() : null;
+                        }
+                        case "ADMINISTRATIVO" -> {
+                                Administrativo adm = administrativoRepository.findByUsuarioRut(usuario.getRut());
+                                yield adm != null ? adm.getIdAdministrativo() : null;
+                        }
+                        default -> null; // SUPERADMIN no tiene entidad propia
+                };
+        }
 }

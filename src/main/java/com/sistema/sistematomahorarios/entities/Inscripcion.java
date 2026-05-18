@@ -25,7 +25,7 @@ public class Inscripcion {
     private Seccion seccion;
 
     @ManyToOne
-    @JoinColumn(name = "seccion_id_periodo", nullable = false)
+    @JoinColumn(name = "periodo_id_periodo", nullable = false)
     private Periodo periodo;
 
 
