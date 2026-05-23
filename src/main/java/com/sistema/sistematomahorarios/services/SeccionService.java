@@ -1,6 +1,7 @@
 package com.sistema.sistematomahorarios.services;
 
 import com.sistema.sistematomahorarios.entities.Seccion;
+import com.sistema.sistematomahorarios.repositories.InscripcionRepository;
 import com.sistema.sistematomahorarios.repositories.SeccionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,9 @@ public class SeccionService {
 
     @Autowired
     private SeccionRepository seccionRepository;
+
+    @Autowired
+    private InscripcionRepository inscripcionRepository;
 
     public List<Seccion> listarTodas() {
         return seccionRepository.findAll();
@@ -54,5 +58,9 @@ public class SeccionService {
         }
         seccionRepository.deleteById(id);
         return "Sección eliminada";
+    }
+
+    public long contarAlumnosInscritos(Integer idSeccion) {
+        return inscripcionRepository.countBySeccionIdSeccion(idSeccion);
     }
 }

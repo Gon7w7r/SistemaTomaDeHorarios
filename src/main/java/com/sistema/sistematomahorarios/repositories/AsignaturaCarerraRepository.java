@@ -8,5 +8,7 @@ import java.util.List;
 
 public interface AsignaturaCarerraRepository extends JpaRepository<AsignaturaCarrera, AsignaturaCarreraId> {
     List<AsignaturaCarrera> findByCarreraIdCarrera(Integer idCarrera);
+
+    void deleteByCarreraIdCarreraAndAsignaturaIdAsignatura(Integer idCarrera, Integer idAsignatura);
     
 }

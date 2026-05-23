@@ -1,9 +1,16 @@
 package com.sistema.sistematomahorarios.controllers;
 
+import com.sistema.sistematomahorarios.entities.Asignatura;
 import com.sistema.sistematomahorarios.entities.Carrera;
+import com.sistema.sistematomahorarios.enums.TipoUsuario;
+import com.sistema.sistematomahorarios.security.RolRequerido;
 import com.sistema.sistematomahorarios.services.CarreraService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import com.sistema.sistematomahorarios.entities.Asignatura;
+import com.sistema.sistematomahorarios.enums.TipoUsuario;
+import com.sistema.sistematomahorarios.security.RolRequerido;
 
 import java.util.List;
 
@@ -44,5 +51,27 @@ public class CarreraController {
     @DeleteMapping("/{id}")
     public String eliminar(@PathVariable Integer id) {
         return carreraService.eliminar(id);
+    }
+
+    @GetMapping("/{id}/asignaturas")
+    @RolRequerido({ TipoUsuario.ADMINISTRATIVO })
+    public List<Asignatura> obtenerAsignaturas(@PathVariable Integer id) {
+        return carreraService.obtenerAsignaturas(id);
+    }
+
+    @PostMapping("/{id}/asignaturas/{idAsignatura}")
+    @RolRequerido({ TipoUsuario.ADMINISTRATIVO })
+    public String agregarAsignatura(
+            @PathVariable Integer id,
+            @PathVariable Integer idAsignatura) {
+        return carreraService.agregarAsignatura(id, idAsignatura);
+    }
+
+    @DeleteMapping("/{id}/asignaturas/{idAsignatura}")
+    @RolRequerido({ TipoUsuario.ADMINISTRATIVO })
+    public String quitarAsignatura(
+            @PathVariable Integer id,
+            @PathVariable Integer idAsignatura) {
+        return carreraService.quitarAsignatura(id, idAsignatura);
     }
 }

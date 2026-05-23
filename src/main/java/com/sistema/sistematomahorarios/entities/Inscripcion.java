@@ -25,11 +25,11 @@ public class Inscripcion {
     private Seccion seccion;
 
     @ManyToOne
-    @JoinColumn(name = "periodo_id_periodo", nullable = false)
+    @JoinColumn(name = "periodo_id_periodo", nullable = false)  // ✅ nombre correcto
     private Periodo periodo;
 
 
-    // Getters and Setters
+     // Getters and Setters
 
     public Integer getIdInscripcion() {
         return idInscripcion;

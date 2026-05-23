@@ -14,7 +14,8 @@ import java.util.List;
 @RequestMapping("/inscripciones")
 public class InscripcionController {
 
-    @Autowired private InscripcionService inscripcionService;
+    @Autowired
+    private InscripcionService inscripcionService;
 
     @PostMapping("/inscribir")
     @RolRequerido({ TipoUsuario.ALUMNO, TipoUsuario.ADMINISTRATIVO })
@@ -35,5 +36,14 @@ public class InscripcionController {
     public List<String> inscribirMultiple(@RequestBody InscripcionMultipleRequestDTO request) {
         return inscripcionService.inscribirMultiple(
                 request.getIdAlumno(), request.getSecciones(), request.getIdPeriodo());
+    }
+
+    @PutMapping("/actualizar-horario")
+    @RolRequerido({ TipoUsuario.ALUMNO, TipoUsuario.ADMINISTRATIVO })
+    public List<String> actualizarHorario(@RequestBody InscripcionMultipleRequestDTO request) {
+        return inscripcionService.actualizarHorario(
+                request.getIdAlumno(),
+                request.getSecciones(),
+                request.getIdPeriodo());
     }
 }
