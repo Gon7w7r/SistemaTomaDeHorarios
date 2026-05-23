@@ -1,6 +1,9 @@
 package com.sistema.sistematomahorarios.controllers;
 
+import com.sistema.sistematomahorarios.dto.DisponibilidadSalaDTO;
 import com.sistema.sistematomahorarios.entities.Sala;
+import com.sistema.sistematomahorarios.enums.TipoUsuario;
+import com.sistema.sistematomahorarios.security.RolRequerido;
 import com.sistema.sistematomahorarios.services.SalaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -44,5 +47,11 @@ public class SalaController {
     @DeleteMapping("/{id}")
     public String eliminar(@PathVariable Integer id) {
         return salaService.eliminar(id);
+    }
+
+    @GetMapping("/disponibilidad")
+    @RolRequerido({ TipoUsuario.ADMINISTRATIVO })
+    public List<DisponibilidadSalaDTO> getDisponibilidad(@RequestParam String dia) {
+        return salaService.getDisponibilidadPorDia(dia);
     }
 }

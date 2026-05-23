@@ -8,7 +8,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 public class WebConfig implements WebMvcConfigurer{
 
-
      @Autowired
     private RolInterceptor rolInterceptor;
 
@@ -16,7 +15,7 @@ public class WebConfig implements WebMvcConfigurer{
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(rolInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/auth/**"); // login nunca necesita rol
+                .excludePathPatterns("/auth/**"); 
     }
 
     @Override

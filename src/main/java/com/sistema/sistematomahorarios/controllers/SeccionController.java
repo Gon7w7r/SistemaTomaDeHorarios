@@ -13,11 +13,14 @@ import java.util.List;
 @RequestMapping("/secciones")
 public class SeccionController {
 
-    @Autowired private SeccionService seccionService;
+    @Autowired
+    private SeccionService seccionService;
 
     @GetMapping
     @RolRequerido({ TipoUsuario.ALUMNO, TipoUsuario.PROFESOR, TipoUsuario.ADMINISTRATIVO })
-    public List<Seccion> listarTodas() { return seccionService.listarTodas(); }
+    public List<Seccion> listarTodas() {
+        return seccionService.listarTodas();
+    }
 
     @GetMapping("/{id}")
     @RolRequerido({ TipoUsuario.ALUMNO, TipoUsuario.PROFESOR, TipoUsuario.ADMINISTRATIVO })
@@ -39,7 +42,9 @@ public class SeccionController {
 
     @PostMapping
     @RolRequerido({ TipoUsuario.ADMINISTRATIVO })
-    public Seccion crear(@RequestBody Seccion seccion) { return seccionService.crear(seccion); }
+    public Seccion crear(@RequestBody Seccion seccion) {
+        return seccionService.crear(seccion);
+    }
 
     @PutMapping("/{id}")
     @RolRequerido({ TipoUsuario.ADMINISTRATIVO })
@@ -49,5 +54,13 @@ public class SeccionController {
 
     @DeleteMapping("/{id}")
     @RolRequerido({ TipoUsuario.ADMINISTRATIVO })
-    public String eliminar(@PathVariable Integer id) { return seccionService.eliminar(id); }
+    public String eliminar(@PathVariable Integer id) {
+        return seccionService.eliminar(id);
+    }
+
+    @GetMapping("/{id}/alumnos-inscritos")
+    @RolRequerido({ TipoUsuario.ADMINISTRATIVO })
+    public long contarAlumnosInscritos(@PathVariable Integer id) {
+        return seccionService.contarAlumnosInscritos(id);
+    }
 }
