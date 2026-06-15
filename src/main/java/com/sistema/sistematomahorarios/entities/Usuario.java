@@ -15,6 +15,8 @@ public class Usuario {
     private String passwordHash;
     @Column(name="tipo_usuario", nullable = false)
     private String tipoUsuario;
+    @Column(nullable = false)
+    private String email;
 
     public Usuario() {
     }
@@ -56,6 +58,13 @@ public class Usuario {
 
     public void setTipoUsuario(String tipoUsuario) {
         this.tipoUsuario = tipoUsuario;
+    }
+    public String getEmail() {
+        return email; 
+    }
+
+    public void setEmail(String email) { 
+        this.email = email;
     }
 
 }

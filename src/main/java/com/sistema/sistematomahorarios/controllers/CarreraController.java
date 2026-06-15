@@ -7,11 +7,6 @@ import com.sistema.sistematomahorarios.security.RolRequerido;
 import com.sistema.sistematomahorarios.services.CarreraService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import com.sistema.sistematomahorarios.entities.Asignatura;
-import com.sistema.sistematomahorarios.enums.TipoUsuario;
-import com.sistema.sistematomahorarios.security.RolRequerido;
-
 import java.util.List;
 
 @RestController

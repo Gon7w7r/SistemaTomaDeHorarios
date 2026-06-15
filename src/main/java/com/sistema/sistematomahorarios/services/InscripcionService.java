@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sistema.sistematomahorarios.dto.InscripcionDetalleDTO;
 import com.sistema.sistematomahorarios.dto.InscripcionResponseDTO;
+import com.sistema.sistematomahorarios.entities.Alumno;
 import com.sistema.sistematomahorarios.entities.Inscripcion;
 import com.sistema.sistematomahorarios.entities.Seccion;
 import com.sistema.sistematomahorarios.entities.SeccionHorario;
@@ -36,6 +38,9 @@ public class InscripcionService {
 
     @Autowired
     private PeriodoRepository periodoRepository;
+
+    @Autowired
+    private EmailService emailService;
 
     // ── Inscribir una sección ─────────────────────────────────────────────
     public String inscribir(Integer idAlumno, Integer idSeccion, Integer idPeriodo) {
@@ -77,10 +82,21 @@ public class InscripcionService {
             Integer idPeriodo
     ) {
         List<String> resultados = new ArrayList<>();
+        List<InscripcionDetalleDTO> exitosas = new ArrayList<>();
+
         for (Integer idSeccion : secciones) {
             String resultado = inscribir(idAlumno, idSeccion, idPeriodo);
             resultados.add("Sección " + idSeccion + ": " + resultado);
+
+            if (resultado.equals("Inscripción exitosa")) {
+                exitosas.addAll(construirDetalles(idSeccion));
+            }
         }
+
+        if (!exitosas.isEmpty()) {
+            enviarCorreo(idAlumno, exitosas);
+        }
+
         return resultados;
     }
 
@@ -96,10 +112,21 @@ public class InscripcionService {
         inscripcionRepository.flush();
 
         List<String> resultados = new ArrayList<>();
+        List<InscripcionDetalleDTO> exitosas = new ArrayList<>();
+
         for (Integer idSeccion : seccionesNuevas) {
             String resultado = inscribir(idAlumno, idSeccion, idPeriodo);
             resultados.add("Sección " + idSeccion + ": " + resultado);
+
+            if (resultado.equals("Inscripción exitosa")) {
+                exitosas.addAll(construirDetalles(idSeccion));
+            }
         }
+
+        if (!exitosas.isEmpty()) {
+            enviarCorreo(idAlumno, exitosas);
+        }
+
         return resultados;
     }
 
@@ -116,6 +143,35 @@ public class InscripcionService {
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────
+
+    // Construye los detalles de una sección para el PDF/correo
+    private List<InscripcionDetalleDTO> construirDetalles(Integer idSeccion) {
+        List<InscripcionDetalleDTO> detalles = new ArrayList<>();
+        List<SeccionHorario> horarios = seccionHorarioRepository.findBySeccionIdSeccion(idSeccion);
+        Seccion seccion = seccionRepository.findById(idSeccion).orElseThrow();
+
+        for (SeccionHorario sh : horarios) {
+            detalles.add(new InscripcionDetalleDTO(
+                seccion.getAsignatura().getIdAsignatura(),
+                seccion.getAsignatura().getNombre(),
+                seccion.getIdSeccion(),
+                sh.getHorario().getDiaSemana(),
+                sh.getHorario().getHoraInicio().toString(),
+                sh.getHorario().getHoraFin().toString(),
+                seccion.getSala().getNombre()
+            ));
+        }
+        return detalles;
+    }
+
+    // Obtiene email y nombre del alumno y llama al EmailService
+    private void enviarCorreo(Integer idAlumno, List<InscripcionDetalleDTO> detalles) {
+        Alumno alumno = alumnoRepository.findById(idAlumno).orElseThrow();
+        String email  = alumno.getUsuario().getEmail();
+        String nombre = alumno.getUsuario().getNombre();
+        emailService.enviarCorreoInscripcion(email, nombre, detalles);
+    }
+
     private boolean tieneChoqueHorario(Integer idAlumno, Integer idSeccionNueva) {
         List<SeccionHorario> nueva = seccionHorarioRepository.findBySeccionIdSeccion(idSeccionNueva);
         List<Inscripcion> actuales = inscripcionRepository.findByAlumnoIdAlumno(idAlumno);
