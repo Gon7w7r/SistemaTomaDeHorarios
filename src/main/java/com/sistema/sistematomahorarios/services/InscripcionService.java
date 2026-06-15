@@ -44,6 +44,7 @@ public class InscripcionService {
 
     // ── Inscribir una sección ─────────────────────────────────────────────
     public String inscribir(Integer idAlumno, Integer idSeccion, Integer idPeriodo) {
+        
 
         if (inscripcionRepository.existsByAlumnoIdAlumnoAndSeccionIdSeccion(idAlumno, idSeccion)) {
             return "El alumno ya está inscrito en esta sección";
@@ -82,19 +83,20 @@ public class InscripcionService {
             Integer idPeriodo
     ) {
         List<String> resultados = new ArrayList<>();
-        List<InscripcionDetalleDTO> exitosas = new ArrayList<>();
+        boolean huboExitosa = false;
+
 
         for (Integer idSeccion : secciones) {
             String resultado = inscribir(idAlumno, idSeccion, idPeriodo);
             resultados.add("Sección " + idSeccion + ": " + resultado);
 
             if (resultado.equals("Inscripción exitosa")) {
-                exitosas.addAll(construirDetalles(idSeccion));
+                huboExitosa = true;
             }
         }
 
-        if (!exitosas.isEmpty()) {
-            enviarCorreo(idAlumno, exitosas);
+        if (huboExitosa) {
+            enviarCorreo(idAlumno, construirHorarioCompleto(idAlumno));
         }
 
         return resultados;
@@ -108,23 +110,23 @@ public class InscripcionService {
             Integer idPeriodo
     ) {
         List<Inscripcion> actuales = inscripcionRepository.findByAlumnoIdAlumno(idAlumno);
+        boolean huboExitosa = false;  // ← aquí
         inscripcionRepository.deleteAllInBatch(actuales);
         inscripcionRepository.flush();
 
         List<String> resultados = new ArrayList<>();
-        List<InscripcionDetalleDTO> exitosas = new ArrayList<>();
 
         for (Integer idSeccion : seccionesNuevas) {
             String resultado = inscribir(idAlumno, idSeccion, idPeriodo);
             resultados.add("Sección " + idSeccion + ": " + resultado);
 
             if (resultado.equals("Inscripción exitosa")) {
-                exitosas.addAll(construirDetalles(idSeccion));
+                huboExitosa = true;
             }
         }
 
-        if (!exitosas.isEmpty()) {
-            enviarCorreo(idAlumno, exitosas);
+        if (huboExitosa) {
+            enviarCorreo(idAlumno, construirHorarioCompleto(idAlumno));
         }
 
         return resultados;
@@ -145,10 +147,14 @@ public class InscripcionService {
     // ── Helpers ───────────────────────────────────────────────────────────
 
     // Construye los detalles de una sección para el PDF/correo
-    private List<InscripcionDetalleDTO> construirDetalles(Integer idSeccion) {
-        List<InscripcionDetalleDTO> detalles = new ArrayList<>();
-        List<SeccionHorario> horarios = seccionHorarioRepository.findBySeccionIdSeccion(idSeccion);
-        Seccion seccion = seccionRepository.findById(idSeccion).orElseThrow();
+   private List<InscripcionDetalleDTO> construirHorarioCompleto(Integer idAlumno) {
+    List<InscripcionDetalleDTO> detalles = new ArrayList<>();
+    List<Inscripcion> inscripciones = inscripcionRepository.findByAlumnoIdAlumno(idAlumno);
+
+    for (Inscripcion ins : inscripciones) {
+        Seccion seccion = ins.getSeccion();
+        List<SeccionHorario> horarios = seccionHorarioRepository
+            .findBySeccionIdSeccion(seccion.getIdSeccion());
 
         for (SeccionHorario sh : horarios) {
             detalles.add(new InscripcionDetalleDTO(
@@ -161,8 +167,9 @@ public class InscripcionService {
                 seccion.getSala().getNombre()
             ));
         }
-        return detalles;
     }
+    return detalles;
+}
 
     // Obtiene email y nombre del alumno y llama al EmailService
     private void enviarCorreo(Integer idAlumno, List<InscripcionDetalleDTO> detalles) {
