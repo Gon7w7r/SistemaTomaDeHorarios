@@ -1,45 +1,53 @@
 package com.sistema.sistematomahorarios.services;
 
+import com.resend.Resend;
+import com.resend.core.exception.ResendException;
+import com.resend.services.emails.model.CreateEmailOptions;
 import com.sistema.sistematomahorarios.dto.InscripcionDetalleDTO;
-import jakarta.mail.internet.MimeMessage;
-import jakarta.mail.util.ByteArrayDataSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Base64;
 import java.util.List;
 
 @Service
 public class EmailService {
 
-    @Autowired
-    private JavaMailSender mailSender;
+    @Value("${resend.api.key}")
+    private String resendApiKey;
 
     @Autowired
     private PdfHorarioService pdfHorarioService;
+
     @Async
     public void enviarCorreoInscripcion(String emailDestino, String nombreAlumno,
                                         List<InscripcionDetalleDTO> inscripciones) {
         try {
             byte[] pdfBytes = pdfHorarioService.generarPdf(nombreAlumno, inscripciones);
+            String pdfBase64 = Base64.getEncoder().encodeToString(pdfBytes);
 
-            MimeMessage mensaje = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mensaje, true, "UTF-8");
+            Resend resend = new Resend(resendApiKey);
 
-            helper.setTo(emailDestino);
-            helper.setSubject("Confirmación de inscripción de asignaturas — Nexus Materia");
-            helper.setText(construirCuerpoHtml(nombreAlumno, inscripciones), true);
-            helper.addAttachment(
-                "horario_" + nombreAlumno.replace(" ", "_") + ".pdf",
-                new ByteArrayDataSource(pdfBytes, "application/pdf")
-            );
+            CreateEmailOptions params = CreateEmailOptions.builder()
+                .from("Nexus Materia <onboarding@resend.dev>")
+                .to(emailDestino)
+                .subject("Confirmación de inscripción de asignaturas — Nexus Materia")
+                .html(construirCuerpoHtml(nombreAlumno, inscripciones))
+                .attachments(List.of(
+                    com.resend.services.emails.model.Attachment.builder()
+                        .fileName("horario_" + nombreAlumno.replace(" ", "_") + ".pdf")
+                        .content(pdfBase64)
+                        .build()
+                ))
+                .build();
 
-            mailSender.send(mensaje);
+            resend.emails().send(params);
 
-        } catch (Exception e) {
+        } catch (ResendException e) {
             System.err.println("Error al enviar correo: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Error al generar PDF: " + e.getMessage());
         }
     }
 
