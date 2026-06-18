@@ -19,6 +19,11 @@ public class Asignatura {
     @JoinColumn(name = "departamento_id_departamento", nullable = false)
     private Departamento departamento;
 
+    @Column(name = "tipo_sala")
+    private String tipoSala;
+
+    @Column(name = "requiere_pc", nullable = false)
+    private Boolean requierePc = false;
 
     public Integer getIdAsignatura() {
         return idAsignatura;
@@ -50,6 +55,22 @@ public class Asignatura {
 
     public void setDepartamento(Departamento departamento) {
         this.departamento = departamento;
+    }
+
+    public String getTipoSala() { 
+        return tipoSala; 
+    }
+
+    public void setTipoSala(String tipoSala) { 
+        this.tipoSala = tipoSala; 
+    }
+
+    public Boolean getRequierePc() { 
+        return requierePc; 
+    }
+
+    public void setRequierePc(Boolean requierePc) { 
+        this.requierePc = requierePc; 
     }
 
 }

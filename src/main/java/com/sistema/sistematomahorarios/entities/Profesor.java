@@ -14,6 +14,9 @@ public class Profesor {
     @JoinColumn(name = "usuarios_rut", nullable = false)
     private Usuario usuario;
 
+    @Column(name = "max_secciones")
+    private Integer maxSecciones;
+
     public Profesor() {
     }
 
@@ -37,4 +40,11 @@ public class Profesor {
         this.usuario = usuario;
     }
 
+    public Integer getMaxSecciones() { 
+        return maxSecciones; 
+    }
+
+    public void setMaxSecciones(Integer maxSecciones) {
+        this.maxSecciones = maxSecciones; 
+    }
 }

@@ -49,7 +49,7 @@ public class CarreraController {
     }
 
     @GetMapping("/{id}/asignaturas")
-    @RolRequerido({ TipoUsuario.ADMINISTRATIVO })
+    @RolRequerido({ TipoUsuario.ADMINISTRATIVO, TipoUsuario.ALUMNO })
     public List<Asignatura> obtenerAsignaturas(@PathVariable Integer id) {
         return carreraService.obtenerAsignaturas(id);
     }

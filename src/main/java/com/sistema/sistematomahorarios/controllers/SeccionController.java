@@ -1,5 +1,6 @@
 package com.sistema.sistematomahorarios.controllers;
 
+import com.sistema.sistematomahorarios.dto.SeccionRequestDTO;
 import com.sistema.sistematomahorarios.entities.Seccion;
 import com.sistema.sistematomahorarios.enums.TipoUsuario;
 import com.sistema.sistematomahorarios.security.RolRequerido;
@@ -46,6 +47,12 @@ public class SeccionController {
         return seccionService.crear(seccion);
     }
 
+    @PostMapping("/con-horarios")
+    @RolRequerido({ TipoUsuario.ADMINISTRATIVO })
+    public Seccion crearConHorarios(@RequestBody SeccionRequestDTO request) {
+        return seccionService.crearConHorarios(request);
+    }
+
     @PutMapping("/{id}")
     @RolRequerido({ TipoUsuario.ADMINISTRATIVO })
     public String actualizar(@PathVariable Integer id, @RequestBody Seccion datos) {
@@ -58,9 +65,21 @@ public class SeccionController {
         return seccionService.eliminar(id);
     }
 
+    @DeleteMapping("/{id}/con-horarios")
+    @RolRequerido({ TipoUsuario.ADMINISTRATIVO })
+    public String eliminarConHorarios(@PathVariable Integer id) {
+        return seccionService.eliminarConHorarios(id);
+    }
+
     @GetMapping("/{id}/alumnos-inscritos")
     @RolRequerido({ TipoUsuario.ADMINISTRATIVO })
     public long contarAlumnosInscritos(@PathVariable Integer id) {
         return seccionService.contarAlumnosInscritos(id);
+    }
+
+    @PutMapping("/{id}/con-horarios")
+    @RolRequerido({ TipoUsuario.ADMINISTRATIVO })
+    public Seccion actualizarConHorarios(@PathVariable Integer id, @RequestBody SeccionRequestDTO request) {
+        return seccionService.actualizarConHorarios(id, request);
     }
 }
