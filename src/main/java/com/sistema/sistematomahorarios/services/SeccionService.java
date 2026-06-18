@@ -107,20 +107,15 @@ public class SeccionService {
         if (!seccionRepository.existsById(id))
             return "Sección no encontrada";
 
-        // eliminar alumnos inscritos primero
         inscripcionRepository.deleteBySeccionIdSeccion(id);
 
-        // eliminar horarios asociados
-        List<SeccionHorario> horarios =
-                seccionHorarioRepository.findBySeccionIdSeccion(id);
+        seccionHorarioRepository.deleteBySeccionIdSeccion(id);
 
-        seccionHorarioRepository.deleteAllInBatch(horarios);
-
-        // eliminar sección
         seccionRepository.deleteById(id);
 
         return "Sección eliminada";
     }
+
 
     @Transactional
     public Seccion actualizarConHorarios(Integer id, SeccionRequestDTO dto) {
