@@ -20,4 +20,7 @@ public interface InscripcionRepository extends JpaRepository<Inscripcion, Intege
     @Query("SELECT COUNT(DISTINCT i.alumno.idAlumno) FROM Inscripcion i")
     long countAlumnosConInscripcion();
 
+    void deleteBySeccionIdSeccion(Integer idSeccion);
+
+
 }

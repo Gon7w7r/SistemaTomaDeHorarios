@@ -103,11 +103,22 @@ public class SeccionService {
 
     @Transactional
     public String eliminarConHorarios(Integer id) {
+
         if (!seccionRepository.existsById(id))
             return "Sección no encontrada";
-        List<SeccionHorario> horarios = seccionHorarioRepository.findBySeccionIdSeccion(id);
+
+        // eliminar alumnos inscritos primero
+        inscripcionRepository.deleteBySeccionIdSeccion(id);
+
+        // eliminar horarios asociados
+        List<SeccionHorario> horarios =
+                seccionHorarioRepository.findBySeccionIdSeccion(id);
+
         seccionHorarioRepository.deleteAllInBatch(horarios);
+
+        // eliminar sección
         seccionRepository.deleteById(id);
+
         return "Sección eliminada";
     }
 
