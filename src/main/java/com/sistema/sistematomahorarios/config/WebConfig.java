@@ -7,25 +7,26 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-
-
 @Configuration
-public class WebConfig implements WebMvcConfigurer{
+public class WebConfig implements WebMvcConfigurer {
 
-     @Autowired
+    @Autowired
     private RolInterceptor rolInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(rolInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/auth/**"); 
+                .excludePathPatterns("/auth/**");
     }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:5173")
+                .allowedOrigins(
+                        "http://localhost:5173",
+                        "https://taller-aplicado-programacion-frontend-5m8ur3n5v.vercel.app",
+                        "https://taller-aplicado-programacion-frontend-4xsimwdg1.vercel.app")
                 .allowedMethods("*")
                 .allowedHeaders("*");
     }
