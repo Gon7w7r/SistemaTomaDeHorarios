@@ -19,6 +19,12 @@ public class Sala {
     @JoinColumn(name = "sede_id_sede", nullable = false)
     private Sede sede;
 
+    @Column(nullable = false)
+    private Integer capacidad;
+
+    @Column(name = "tiene_pc", nullable = false)
+    private Boolean tienePc = false;
+
     public Integer getIdSala() {
         return idSala;
     }
@@ -49,6 +55,22 @@ public class Sala {
 
     public void setSede(Sede sede) {
         this.sede = sede;
+    }
+
+    public Integer getCapacidad() { 
+        return capacidad; 
+    }
+
+    public void setCapacidad(Integer capacidad) { 
+        this.capacidad = capacidad; 
+    }
+
+    public Boolean getTienePc() { 
+        return tienePc; 
+    }
+
+    public void setTienePc(Boolean tienePc) { 
+        this.tienePc = tienePc; 
     }
 
 }
