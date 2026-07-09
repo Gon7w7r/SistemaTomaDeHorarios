@@ -17,12 +17,14 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 @Service
 public class PdfHorarioService {
@@ -107,7 +109,9 @@ public class PdfHorarioService {
                     vacia.setFixedHeight(CELL_HEIGHT);
                     tabla.addCell(vacia);
                 } else {
-                    int span = calcularSpan(bloque.getHoraInicio(), bloque.getHoraFin());
+                    // FIX: el span ya no se calcula por aritmética de reloj (diffMin / 60),
+                    // sino contando cuántos slots reales (de la lista `horas`) cubre el bloque.
+                    int span = calcularSpan(horas, rowIndex, bloque.getHoraFin());
 
                     for (int s = 1; s < span; s++) {
                         ocupadas.add(dia + "-" + (rowIndex + s));
@@ -143,34 +147,44 @@ public class PdfHorarioService {
         return out.toByteArray();
     }
 
+    /**
+     * FIX: en vez de generar horas cada 60 minutos desde la mínima hasta la
+     * máxima (lo que no calzaba con los bloques reales de la BD, que no están
+     * espaciados uniformemente cada 60 min), tomamos directamente las horas
+     * de inicio reales de las inscripciones, sin duplicados y ordenadas.
+     */
     private List<String> generarHoras(List<InscripcionDetalleDTO> inscripciones) {
-        int minMin = Integer.MAX_VALUE;
-        int maxMin = Integer.MIN_VALUE;
+        Set<String> horasUnicas = new TreeSet<>(Comparator.comparingInt(this::horaAMinutos));
 
         for (InscripcionDetalleDTO ins : inscripciones) {
-            int[] ini = parsearHora(ins.getHoraInicio());
-            int[] fin = parsearHora(ins.getHoraFin());
-            minMin = Math.min(minMin, ini[0] * 60 + ini[1]);
-            maxMin = Math.max(maxMin, fin[0] * 60 + fin[1]);
+            horasUnicas.add(ins.getHoraInicio());
         }
 
-        List<String> horas = new ArrayList<>();
-        for (int m = minMin; m < maxMin; m += 60) {
-            horas.add(String.format("%02d:%02d", m / 60, m % 60));
+        return new ArrayList<>(horasUnicas);
+    }
+
+    /**
+     * Cuenta cuántas filas (slots reales) cubre un bloque, contando cuántas
+     * entradas de `horas` caen entre el inicio del bloque (rowIndex) y su
+     * hora de fin. Reemplaza el viejo cálculo por diffMin / 60.
+     */
+    private int calcularSpan(List<String> horas, int rowIndex, String horaFin) {
+        int finMin = horaAMinutos(horaFin);
+        int span = 1;
+
+        for (int i = rowIndex + 1; i < horas.size(); i++) {
+            if (horaAMinutos(horas.get(i)) < finMin) {
+                span++;
+            } else {
+                break;
+            }
         }
-        return horas;
+        return span;
     }
 
-    private int calcularSpan(String horaInicio, String horaFin) {
-        int[] ini = parsearHora(horaInicio);
-        int[] fin = parsearHora(horaFin);
-        int diffMin = (fin[0] * 60 + fin[1]) - (ini[0] * 60 + ini[1]);
-        return Math.max(1, diffMin / 60);
-    }
-
-    private int[] parsearHora(String hora) {
+    private int horaAMinutos(String hora) {
         String[] partes = hora.split(":");
-        return new int[]{Integer.parseInt(partes[0]), Integer.parseInt(partes[1])};
+        return Integer.parseInt(partes[0]) * 60 + Integer.parseInt(partes[1]);
     }
 
     private PdfPCell headerCell(String texto, Font fuente) {
