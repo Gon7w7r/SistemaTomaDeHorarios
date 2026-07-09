@@ -8,6 +8,7 @@ import com.sistema.sistematomahorarios.repositories.AsignaturaRepository;
 import com.sistema.sistematomahorarios.repositories.CarreraRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -69,6 +70,7 @@ public class CarreraService {
         return "Asignatura agregada";
     }
 
+    @Transactional // <-- ESTA ES LA LÍNEA QUE FALTABA
     public String quitarAsignatura(Integer idCarrera, Integer idAsignatura) {
         asignaturaCarreraRepository
             .deleteByCarreraIdCarreraAndAsignaturaIdAsignatura(idCarrera, idAsignatura);
